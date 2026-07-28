@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>שם המצגת שלי</title>
+
+<!-- ============================================================
+     טמפלט מצגות אישי — קובץ יחיד, ללא צורך בהתקנות.
+     איך משתמשים:
+     1. ערכו את הטקסטים בתוך תגי <section class="slide">.
+     2. שכפלו סליידים (בלוקים של <section>) כדי להוסיף עוד.
+     3. מחקו סליידים שלא צריך.
+     4. סדר הסליידים בקובץ = סדר ההצגה.
+     5. לצפייה: פתחו את הקובץ בדפדפן. חצים / מקלדת / קליק לניווט.
+     6. לייצוא ל-PDF: Ctrl+P (או Cmd+P) ובחרו "הדפסה" — כל סליידים יודפסו כעמוד נפרד.
+     ============================================================ -->
+
+<style>
+  /* ==========================================================
+     1) הגדרות עיצוב מרכזיות — שנו כאן צבעים/פונטים ופה זה ישפיע על כל המצגת
+     ========================================================== */
+  :root{
+    --color-bg:        #0f1115;
+    --color-bg-alt:     #161a22;
+    --color-surface:    #1c212b;
+    --color-primary:    #6ea8ff;
+    --color-primary-dk: #3f6fd6;
+    --color-accent:     #ffb454;
+    --color-text:       #f2f4f8;
+    --color-text-dim:   #a6adba;
+    --color-border:     #2b3140;
+
+    --font-heading: "Assistant", "Heebo", "Segoe UI", sans-serif;
+    --font-body:    "Heebo", "Assistant", "Segoe UI", sans-serif;
+
+    --slide-radius: 18px;
+    --transition: .45s cubic-bezier(.65,0,.35,1);
+  }
+
+  /* ערכת נושא בהירה חלופית — כדי להפעיל, הוסיפו class="theme-light" לתג ה-<body> */
+  body.theme-light{
+    --color-bg:        #f5f6fa;
+    --color-bg-alt:     #ffffff;
+    --color-surface:    #ffffff;
+    --color-primary:    #2f5fd0;
+    --color-primary-dk: #1f45a0;
+    --color-accent:     #d97706;
+    --color-text:       #1b1e27;
+    --color-text-dim:   #5a6070;
+    --color-border:     #e1e4ec;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow:hidden;
+  }
+
+  /* ==========================================================
+     2) מבנה הצגה: כל .slide הוא עמוד. רק אחד גלוי בכל רגע.
+     ========================================================== */
+  #deck{
+    position:relative;
+    width:100vw;
+    height:100vh;
+  }
+
+  .slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-start;
+    padding: 6vh 8vw;
+    background: radial-gradient(circle at 15% 15%, var(--color-bg-alt), var(--color-bg));
+    opacity:0;
+    visibility:hidden;
+    transform: translateX(24px);
+    transition: opacity var(--transition), transform var(--transition), visibility 0s linear var(--transition);
+  }
+  .slide.active{
+    opacity:1;
+    visibility:visible;
+    transform: translateX(0);
+    transition: opacity var(--transition), transform var(--transition);
+  }
+
+  .slide h1, .slide h2, .slide h3{
+    font-family: var(--font-heading);
+    margin: 0 0 .4em 0;
+    line-height:1.15;
+  }
+  .slide h1{ font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight:800; }
+  .slide h2{ font-size: clamp(1.6rem, 3.4vw, 2.4rem); font-weight:700; color: var(--color-primary); }
+  .slide h3{ font-size: clamp(1.2rem, 2.2vw, 1.6rem); font-weight:600; }
+  .slide p, .slide li{ font-size: clamp(1rem, 1.5vw, 1.25rem); line-height:1.6; color: var(--color-text-dim); }
+  .slide strong{ color: var(--color-text); }
+
+  .kicker{
+    display:inline-block;
+    font-size:.85rem;
+    letter-spacing:.08em;
+    color: var(--color-accent);
+    text-transform:uppercase;
+    font-weight:700;
+    margin-bottom:.6em;
+  }
+
+  /* ---------- סליידי כותרת ---------- */
+  .slide--title{ align-items:center; text-align:center; }
+  .slide--title .subtitle{ font-size:1.3rem; color:var(--color-text-dim); margin-top:.6em; }
+  .slide--title .meta{ margin-top:2.4em; font-size:.95rem; color:var(--color-text-dim); }
+
+  /* ---------- סליידי מפריד פרק ---------- */
+  .slide--section{
+    align-items:flex-start;
+    background: linear-gradient(135deg, var(--color-primary-dk), var(--color-bg) 70%);
+  }
+  .slide--section h2{ color:#fff; font-size:clamp(2rem,4.5vw,3.2rem); }
+  .slide--section .index{ font-size:5rem; font-weight:800; opacity:.25; color:#fff; margin-bottom:.1em; }
+
+  /* ---------- רשימת תוכן ---------- */
+  .slide--bullets ul{ padding-inline-start:1.3em; margin:0; }
+  .slide--bullets li{ margin-bottom:.55em; }
+  .slide--bullets li::marker{ color: var(--color-primary); }
+
+  /* ---------- שתי עמודות ---------- */
+  .two-col{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    width:100%;
+  }
+
+  /* ---------- כרטיס / תיבה ---------- */
+  .card{
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--slide-radius);
+    padding: 1.4rem 1.6rem;
+  }
+
+  /* ---------- תמונה מלאה ---------- */
+  .slide--image .media-frame{
+    width:100%; height:60vh;
+    border-radius: var(--slide-radius);
+    overflow:hidden;
+    border:1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .slide--image img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  /* ---------- וידאו (מקומי / הטמעה חיצונית) ---------- */
+  .media-frame video,
+  .media-frame iframe{
+    width:100%; height:100%; border:0; display:block; background:#000;
+  }
+
+  /* ---------- ציטוט ---------- */
+  .slide--quote{ align-items:center; text-align:center; }
+  .slide--quote blockquote{
+    font-family: var(--font-heading);
+    font-size: clamp(1.6rem,3.2vw,2.6rem);
+    font-weight:700;
+    margin:0;
+    max-width: 900px;
+    color: var(--color-text);
+  }
+  .slide--quote cite{
+    display:block;
+    margin-top:1em;
+    font-style:normal;
+    color: var(--color-primary);
+    font-size:1.1rem;
+  }
+
+  /* ---------- קישורים חיצוניים ---------- */
+  .link-list{ display:flex; flex-direction:column; gap:.8rem; width:100%; max-width:640px; }
+  .link-btn{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: .9rem 1.2rem;
+    background: var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius: 12px;
+    color: var(--color-text);
+    text-decoration:none;
+    font-size:1.05rem;
+    transition: border-color .2s, transform .2s;
+  }
+  .link-btn:hover{ border-color: var(--color-primary); transform: translateX(-4px); }
+  .link-btn .arrow{ color: var(--color-primary); font-size:1.2rem; }
+
+  /* כפתור קריאה-לפעולה בודד */
+  .cta{
+    display:inline-block;
+    margin-top:1.4em;
+    padding:.85rem 1.8rem;
+    background: var(--color-primary);
+    color:#fff;
+    border-radius: 999px;
+    text-decoration:none;
+    font-weight:700;
+    font-size:1.05rem;
+  }
+  .cta:hover{ background: var(--color-primary-dk); }
+
+  /* ---------- סליידי סיום ---------- */
+  .slide--closing{ align-items:center; text-align:center; }
+
+  /* ==========================================================
+     3) ניווט ובקרה
+     ========================================================== */
+  #progress{
+    position:fixed; top:0; right:0; left:0; height:4px;
+    background: var(--color-border); z-index:50;
+  }
+  #progress-bar{
+    height:100%; width:0%;
+    background: var(--color-primary);
+    transition: width var(--transition);
+  }
+
+  #nav{
+    position:fixed; bottom:1.4rem; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:1rem; direction:ltr;
+    background: rgba(0,0,0,.35);
+    backdrop-filter: blur(6px);
+    padding:.5rem .9rem;
+    border-radius: 999px;
+    z-index:50;
+    border:1px solid var(--color-border);
+  }
+  body.theme-light #nav{ background: rgba(255,255,255,.7); }
+
+  #nav button{
+    background:none; border:none; color: var(--color-text);
+    font-size:1.3rem; cursor:pointer; line-height:1;
+    padding:.2rem .4rem;
+  }
+  #nav button:hover{ color: var(--color-primary); }
+  #slide-counter{ font-size:.9rem; color: var(--color-text-dim); min-width:3.5em; text-align:center; }
+
+  .click-zone{
+    position:fixed; top:0; bottom:0; width:12%; z-index:40;
+    cursor:pointer;
+  }
+  .click-zone.prev{ right:0; }
+  .click-zone.next{ left:0; }
+
+  /* ==========================================================
+     4) הדפסה / ייצוא ל-PDF — כל סליידים יודפסו ברצף, עמוד לכל סליידי
+     ========================================================== */
+  @media print{
+    body{ overflow:visible; }
+    #progress, #nav, .click-zone{ display:none !important; }
+    .slide{
+      position:relative;
+      opacity:1 !important; visibility:visible !important; transform:none !important;
+      page-break-after: always;
+      height:100vh;
+    }
+  }
+
+  @media (max-width: 760px){
+    .two-col{ grid-template-columns:1fr; gap:1.4rem; }
+    .slide{ padding:5vh 6vw; }
+    .click-zone{ width:18%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"><div id="progress-bar"></div></div>
+
+<div id="deck">
+
+  <!-- =========================================================
+       סליידי 1: כותרת פתיחה — ערכו כותרת, תת-כותרת ופרטי מציג/ה
+       ========================================================= -->
+  <section class="slide slide--title active">
+    <span class="kicker">שם החברה / הפרויקט</span>
+    <h1>כותרת המצגת שלכם כאן</h1>
+    <p class="subtitle">תת-כותרת שמסבירה במשפט אחד על מה המצגת</p>
+    <p class="meta">שם המציג/ה &nbsp;•&nbsp; 28 ביולי 2026</p>
+  </section>
+
+  <!-- =========================================================
+       סליידי 2: אג'נדה / תוכן עניינים
+       ========================================================= -->
+  <section class="slide slide--bullets">
+    <span class="kicker">אג'נדה</span>
+    <h2>מה נעבור היום</h2>
+    <ul>
+      <li>נושא ראשון</li>
+      <li>נושא שני</li>
+      <li>נושא שלישי</li>
+      <li>שאלות ותשובות</li>
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       סליידי 3: מפריד פרק — שימוש בין נושאים גדולים
+       ========================================================= =-->
+  <section class="slide slide--section">
+    <div class="index">01</div>
+    <h2>שם הפרק הראשון</h2>
+  </section>
+
+  <!-- =========================================================
+       סליידי 4: תוכן עם רשימת תבליטים
+       ========================================================= -->
+  <section class="slide slide--bullets">
+    <span class="kicker">פרק 01</span>
+    <h2>כותרת התוכן</h2>
+    <ul>
+      <li><strong>נקודה חשובה ראשונה</strong> — הסבר קצר שמפרט עליה.</li>
+      <li><strong>נקודה חשובה שנייה</strong> — הסבר קצר שמפרט עליה.</li>
+      <li><strong>נקודה חשובה שלישית</strong> — הסבר קצר שמפרט עליה.</li>
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       סליידי 5: שתי עמודות — טוב להשוואות / לפני-אחרי
+       ========================================================= -->
+  <section class="slide">
+    <span class="kicker">השוואה</span>
+    <h2>כותרת ההשוואה</h2>
+    <div class="two-col">
+      <div class="card">
+        <h3>עמודה א׳</h3>
+        <p>תוכן חופשי לעמודה הראשונה. אפשר רשימות, טקסט, או מספרים.</p>
+      </div>
+      <div class="card">
+        <h3>עמודה ב׳</h3>
+        <p>תוכן חופשי לעמודה השנייה.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       סליידי 6: תמונה מלאה — שנו את קובץ/כתובת התמונה ב-src
+       ========================================================= -->
+  <section class="slide slide--image">
+    <span class="kicker">הדגמה</span>
+    <h2>כותרת התמונה</h2>
+    <div class="media-frame">
+      <img src="https://placehold.co/1600x900/1c212b/6ea8ff?text=%D7%94%D7%97%D7%9C%D7%99%D7%A4%D7%95+%D7%AA%D7%9E%D7%95%D7%A0%D7%94" alt="תיאור התמונה">
+    </div>
+  </section>
+
+  <!-- =========================================================
+       סליידי 7: וידאו מקומי (קובץ mp4 שיושב באותה תיקייה)
+       כדי להשתמש: שימו קובץ וידאו לצד הקובץ הזה ושנו את ה-src
+       ========================================================= -->
+  <section class="slide slide--image">
+    <span class="kicker">וידאו</span>
+    <h2>וידאו מקובץ מקומי</h2>
+    <div class="media-frame">
+      <video controls poster="https://placehold.co/1600x900/1c212b/6ea8ff?text=%D7%9C%D7%97%D7%A6%D7%95+%D7%9C%D7%94%D7%A4%D7%A2%D7%9C%D7%94">
+        <source src="my-video.mp4" type="video/mp4">
+        הדפדפן שלכם לא תומך בתגית וידאו.
+      </video>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       סליידי 8: וידאו מוטמע מיוטיוב / ורימאו
+       כדי להשתמש: החליפו את כתובת ה-src בקישור embed של הסרטון שלכם
+       (ביוטיוב: youtube.com/embed/VIDEO_ID)
+       ========================================================= -->
+  <section class="slide slide--image">
+    <span class="kicker">וידאו</span>
+    <h2>וידאו מוטמע (YouTube)</h2>
+    <div class="media-frame">
+      <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="כותרת הסרטון"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       סליידי 9: ציטוט
+       ========================================================= -->
+  <section class="slide slide--quote">
+    <blockquote>"כאן אפשר להוסיף ציטוט מרכזי או משפט מפתח שרוצים שיישאר בזיכרון."</blockquote>
+    <cite>— שם המצטט, תפקיד</cite>
+  </section>
+
+  <!-- =========================================================
+       סליידי 10: קישורים חיצוניים / מקורות
+       ========================================================= -->
+  <section class="slide">
+    <span class="kicker">קישורים</span>
+    <h2>לקריאה / צפייה נוספת</h2>
+    <div class="link-list">
+      <a class="link-btn" href="https://example.com" target="_blank" rel="noopener noreferrer">
+        <span>שם הקישור הראשון</span><span class="arrow">←</span>
+      </a>
+      <a class="link-btn" href="https://example.com" target="_blank" rel="noopener noreferrer">
+        <span>שם הקישור השני</span><span class="arrow">←</span>
+      </a>
+      <a class="link-btn" href="https://example.com" target="_blank" rel="noopener noreferrer">
+        <span>שם הקישור השלישי</span><span class="arrow">←</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       סליידי 11: סיום / תודה + יצירת קשר
+       ========================================================= -->
+  <section class="slide slide--closing">
+    <h1>תודה!</h1>
+    <p class="subtitle">שאלות? אפשר לפנות אליי כאן</p>
+    <a class="cta" href="mailto:name@example.com">name@example.com</a>
+  </section>
+
+</div>
+
+<div class="click-zone prev" id="zone-prev" title="קודם"></div>
+<div class="click-zone next" id="zone-next" title="הבא"></div>
+
+<div id="nav">
+  <button id="btn-fullscreen" title="מסך מלא (F)">⛶</button>
+  <button id="btn-next" title="הבא (חץ שמאלה)">‹</button>
+  <span id="slide-counter">1 / 1</span>
+  <button id="btn-prev" title="קודם (חץ ימינה)">›</button>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var current = 0;
+
+  var counter = document.getElementById('slide-counter');
+  var bar = document.getElementById('progress-bar');
+
+  function render(){
+    slides.forEach(function(s, i){ s.classList.toggle('active', i === current); });
+    counter.textContent = (current + 1) + ' / ' + slides.length;
+    bar.style.width = ((current + 1) / slides.length * 100) + '%';
+  }
+
+  // בגלל RTL: "הבא" זז ימין-לשמאל מבחינה הגיונית, אבל מקש ← (שמאלה) יתקדם
+  function goNext(){ if (current < slides.length - 1){ current++; render(); } }
+  function goPrev(){ if (current > 0){ current--; render(); } }
+
+  document.getElementById('btn-next').addEventListener('click', goNext);
+  document.getElementById('btn-prev').addEventListener('click', goPrev);
+  document.getElementById('zone-next').addEventListener('click', goNext);
+  document.getElementById('zone-prev').addEventListener('click', goPrev);
+
+  document.getElementById('btn-fullscreen').addEventListener('click', function(){
+    if (!document.fullscreenElement){ document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen(); }
+  });
+
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' '){ goNext(); }
+    else if (e.key === 'ArrowRight' || e.key === 'PageUp'){ goPrev(); }
+    else if (e.key === 'Home'){ current = 0; render(); }
+    else if (e.key === 'End'){ current = slides.length - 1; render(); }
+    else if (e.key === 'f' || e.key === 'F'){ document.getElementById('btn-fullscreen').click(); }
+    else if (e.key === 'Escape' && document.fullscreenElement){ document.exitFullscreen(); }
+  });
+
+  // ניווט בהחלקה במסכי מגע
+  var touchStartX = null;
+  window.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; });
+  window.addEventListener('touchend', function(e){
+    if (touchStartX === null) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50){ dx < 0 ? goNext() : goPrev(); }
+    touchStartX = null;
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surf & Fly — חזון להקמת מרכז הספורט הימי של הכנרת</title>
+
+<!-- ============================================================
+     מצגת: Surf & Fly — מרכז הספורט הימי של הכנרת
+     בנוי על בסיס template.html. לעריכה: שנו טקסט בתוך <section>,
+     והחליפו את קישורי התמונות/סרטונים (מסומן בהערות).
+     ניווט: חצי מקלדת, קליק בצדי המסך, Cmd/Ctrl+P להדפסה ל-PDF.
+     ============================================================ -->
+
+<style>
+  :root{
+    --color-bg:        #0a141c;
+    --color-bg-alt:     #0e1e29;
+    --color-surface:    #13293a;
+    --color-primary:    #2dd4c8;
+    --color-primary-dk: #1aa89e;
+    --color-accent:     #f5a623;
+    --color-text:       #f1f6f8;
+    --color-text-dim:   #a9bcc5;
+    --color-border:     #1f3a4d;
+
+    --font-heading: "Assistant", "Heebo", "Segoe UI", sans-serif;
+    --font-body:    "Heebo", "Assistant", "Segoe UI", sans-serif;
+
+    --slide-radius: 18px;
+    --transition: .45s cubic-bezier(.65,0,.35,1);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow:hidden;
+  }
+
+  #deck{ position:relative; width:100vw; height:100vh; }
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    justify-content:center; align-items:flex-start;
+    padding: 6vh 8vw;
+    background: radial-gradient(circle at 15% 15%, var(--color-bg-alt), var(--color-bg));
+    opacity:0; visibility:hidden; transform: translateX(24px);
+    transition: opacity var(--transition), transform var(--transition), visibility 0s linear var(--transition);
+  }
+  .slide.active{
+    opacity:1; visibility:visible; transform: translateX(0);
+    transition: opacity var(--transition), transform var(--transition);
+  }
+
+  /* שקופיות עם הרבה טקסט — גוללות בתוך עצמן במקום להיחתך */
+  .slide.dense{ overflow-y:auto; justify-content:flex-start; padding-top:9vh; padding-bottom:8vh; }
+  .slide.dense::-webkit-scrollbar{ width:6px; }
+  .slide.dense::-webkit-scrollbar-thumb{ background: var(--color-border); border-radius:3px; }
+
+  .slide h1, .slide h2, .slide h3{ font-family: var(--font-heading); margin:0 0 .4em 0; line-height:1.15; }
+  .slide h1{ font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight:800; }
+  .slide h2{ font-size: clamp(1.6rem, 3.2vw, 2.3rem); font-weight:700; color: var(--color-primary); }
+  .slide h3{ font-size: clamp(1.1rem, 2vw, 1.4rem); font-weight:600; }
+  .slide p, .slide li{ font-size: clamp(.95rem, 1.4vw, 1.15rem); line-height:1.65; color: var(--color-text-dim); }
+  .slide strong{ color: var(--color-text); }
+
+  .kicker{
+    display:inline-block; font-size:.82rem; letter-spacing:.06em;
+    color: var(--color-accent); text-transform:uppercase; font-weight:700;
+    margin-bottom:.6em;
+  }
+
+  /* ---------- שקופיית פתיחה עם תמונת רקע ---------- */
+  .slide--hero{
+    justify-content:flex-end;
+    background:
+      linear-gradient(180deg, rgba(10,20,28,.25) 0%, rgba(10,20,28,.55) 55%, rgba(10,20,28,.95) 100%),
+      url('https://placehold.co/1920x1080/0a141c/2dd4c8?text=Kitesurfing+%E2%80%94+Kinneret') center/cover no-repeat;
+    padding-bottom: 8vh;
+  }
+  .slide--hero .subtitle{ font-size:1.3rem; color: var(--color-text-dim); margin:.2em 0 1em 0; }
+  .slide--hero .lead{
+    font-size: clamp(1.05rem,1.9vw,1.35rem);
+    font-weight:700; color:#fff; max-width:780px;
+    border-right: 4px solid var(--color-primary);
+    padding-right: .9em; margin-top:.6em;
+  }
+  .slide--hero .meta{ margin-top:1.6em; font-size:.9rem; color: var(--color-text-dim); }
+
+  /* ---------- הדגשה בתוך שקופייה (משפט מפתח) ---------- */
+  .emph{
+    font-size: clamp(1.05rem,1.7vw,1.3rem); font-weight:700; color: var(--color-text);
+    border-right: 3px solid var(--color-accent); padding-right:.8em; margin: .7em 0 1em 0;
+  }
+
+  ul.plain{ padding-inline-start:1.3em; margin:.4em 0; }
+  ul.plain li{ margin-bottom:.5em; }
+  ul.plain li::marker{ color: var(--color-primary); }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:2.4rem; width:100%; }
+  .card{
+    background: var(--color-surface); border:1px solid var(--color-border);
+    border-radius: var(--slide-radius); padding:1.3rem 1.5rem;
+  }
+
+  /* ---------- כרטיסי מספרים ---------- */
+  .stats-grid{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr));
+    gap:1.1rem; width:100%; margin: .4rem 0 1rem 0;
+  }
+  .stat{
+    background: var(--color-surface); border:1px solid var(--color-border);
+    border-radius: var(--slide-radius); padding:1.3rem 1.1rem; text-align:center;
+  }
+  .stat-number{
+    font-family: var(--font-heading); font-size: clamp(1.7rem,3vw,2.4rem);
+    font-weight:800; color: var(--color-primary); line-height:1;
+  }
+  .stat-label{ margin-top:.5rem; font-size:.9rem; color: var(--color-text-dim); }
+
+  /* ---------- צ'יפים (רשימת תכונות / פעילויות) ---------- */
+  .chip-grid{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr));
+    gap:.7rem; width:100%;
+  }
+  .chip{
+    background: var(--color-surface); border:1px solid var(--color-border);
+    border-radius: 12px; padding:.75rem 1rem; font-size:.98rem; color: var(--color-text);
+  }
+
+  /* ---------- מדיה (וידאו/תמונה) ---------- */
+  .media-frame{
+    width:100%; height:38vh; margin-top:1rem;
+    border-radius: var(--slide-radius); overflow:hidden;
+    border:1px solid var(--color-border); background: var(--color-surface);
+  }
+  .media-frame video, .media-frame iframe, .media-frame img{
+    width:100%; height:100%; border:0; display:block; object-fit:cover; background:#000;
+  }
+  .media-caption{ font-size:.85rem; color: var(--color-text-dim); margin-top:.4rem; }
+
+  /* ---------- שקופיית וידאו מרכזית ---------- */
+  .slide--video-feature{ align-items:center; text-align:center; }
+  .slide--video-feature h2{ margin-bottom:.8em; }
+  .media-frame--feature{
+    width:min(78vw, 1100px);
+    max-height:70vh;
+    height:auto;
+    aspect-ratio: 16 / 9; /* ברירת מחדל — מתעדכן אוטומטית למידות הסרטון האמיתי */
+    margin-top:0;
+    background:#000;
+    box-shadow: 0 0 0 1px var(--color-border), 0 20px 60px rgba(0,0,0,.5), 0 0 40px rgba(45,212,200,.15);
+    cursor:pointer;
+  }
+  .media-frame--feature video{ object-fit:contain; }
+
+  /* ---------- שקופיית סיום ---------- */
+  .slide--closing{ align-items:center; text-align:center; }
+  .cta{
+    display:inline-block; margin-top:1.4em; padding:.85rem 1.8rem;
+    background: var(--color-primary); color:#06201d; border-radius:999px;
+    text-decoration:none; font-weight:800; font-size:1.05rem;
+  }
+  .cta:hover{ background: var(--color-primary-dk); color:#fff; }
+
+  .contact-row{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:.9rem;
+    margin-top:1.8em;
+  }
+  .contact-item{
+    display:flex; align-items:center; gap:.5em;
+    padding:.7rem 1.3rem;
+    background: var(--color-surface); border:1px solid var(--color-border);
+    border-radius:999px; color: var(--color-text); text-decoration:none;
+    font-size:1rem; direction:ltr;
+    transition: border-color .2s, transform .2s;
+  }
+  .contact-item:hover{ border-color: var(--color-primary); transform: translateY(-2px); }
+  .contact-item .icon{ color: var(--color-primary); font-size:1.1rem; }
+
+  /* ---------- ניווט ---------- */
+  #progress{ position:fixed; top:0; right:0; left:0; height:4px; background: var(--color-border); z-index:50; }
+  #progress-bar{ height:100%; width:0%; background: var(--color-primary); transition: width var(--transition); }
+
+  #nav{
+    position:fixed; bottom:1.4rem; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:1rem; direction:ltr;
+    background: rgba(0,0,0,.4); backdrop-filter: blur(6px);
+    padding:.5rem .9rem; border-radius:999px; z-index:50; border:1px solid var(--color-border);
+  }
+  #nav button{ background:none; border:none; color: var(--color-text); font-size:1.3rem; cursor:pointer; padding:.2rem .4rem; }
+  #nav button:hover{ color: var(--color-primary); }
+  #slide-counter{ font-size:.9rem; color: var(--color-text-dim); min-width:3.5em; text-align:center; }
+
+  .click-zone{ position:fixed; top:0; bottom:0; width:12%; z-index:40; cursor:pointer; }
+  .click-zone.prev{ right:0; }
+  .click-zone.next{ left:0; }
+
+  @media print{
+    body{ overflow:visible; }
+    #progress, #nav, .click-zone{ display:none !important; }
+    .slide{
+      position:relative; opacity:1 !important; visibility:visible !important; transform:none !important;
+      page-break-after: always; height:auto; min-height:100vh; overflow:visible;
+    }
+  }
+
+  @media (max-width:760px){
+    .two-col{ grid-template-columns:1fr; gap:1.2rem; }
+    .slide{ padding:5vh 6vw; }
+    .click-zone{ width:18%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"><div id="progress-bar"></div></div>
+
+<div id="deck">
+
+  <!-- שקופית 1: פתיחה -->
+  <section class="slide slide--hero active">
+    <span class="kicker">Surf & Fly · בשיתוף המועצה האזורית גולן</span>
+    <h1>Surf & Fly</h1>
+    <p class="subtitle">חזון להקמת מרכז הספורט הימי של הכנרת</p>
+    <p class="lead">הכנרת נמצאת בנקודת מפנה. הביקוש לספורט ימי גדל בקצב מהיר, והגיע הזמן ליצור בית אמיתי לענף – כזה שישרת את תושבי הגולן, התיירות והקהילה.</p>
+    <!-- להחלפה: כתובת תמונת שער (קייטסרפינג בכנרת) ב-background של .slide--hero למעלה -->
+  </section>
+
+  <!-- שקופית 2: מי אנחנו — וידאו במרכז -->
+  <section class="slide slide--video-feature">
+    <span class="kicker">01 · מי אנחנו</span>
+    <h2>מי אנחנו?</h2>
+    <div class="media-frame media-frame--feature">
+      <video controls>
+        <source src="סרטון 1.mp4" type="video/mp4">
+      </video>
+    </div>
+  </section>
+
+  <!-- שקופית 2ב: הפעילות שלנו -->
+  <section class="slide dense">
+    <span class="kicker">02 · הפעילות שלנו</span>
+    <h2>מה אנחנו עושים</h2>
+    <p>Surf & Fly הוא מועדון ספורט ימי המתמחה בקייטסרפינג, Wing Foil, SUP וגלישת גלים. כיום אנחנו מפעילים מוקד פעילות קבוע בחוף הכרמל, הפועל מחופי <strong>נווה ים ועתלית</strong>, שם אנחנו מקיימים הדרכות, קורסים, השכרת ציוד, מכירת ציוד, אירועי קהילה ופעילויות לאורך כל עונת הגלישה.</p>
+    <p>במהלך השנים בנינו פעילות רחבה המשלבת הדרכה מקצועית, תיירות ספורט, קהילה ופעילות חברתית. בכל שנה עוברים אצלנו למעלה מ־500 תלמידים, ואנחנו מלווים אותם משיעור ההיכרות הראשון ועד להפיכתם לגולשים עצמאיים.</p>
+    <p>בנוסף לפעילות בישראל, אנחנו מובילים מסעות גלישה ביוון, בפיליפינים ובזנזיבר, עובדים עם עמותות כמו שבט, ארז והעטלף, מקיימים פעילויות עם פצועי צה"ל ומפיקים אירועי קהילה סביב הספורט הימי.</p>
+    <p><strong>הפעילות שלנו כוללת:</strong></p>
+    <div class="chip-grid">
+      <div class="chip">קייטסרפינג</div>
+      <div class="chip">Wing Foil</div>
+      <div class="chip">SUP</div>
+      <div class="chip">גלישת גלים</div>
+      <div class="chip">השכרת ציוד</div>
+      <div class="chip">מכירת ציוד חדש ויד שנייה</div>
+      <div class="chip">ליווי מקצועי גם לאחר הקורסים</div>
+    </div>
+  </section>
+
+  <!-- שקופית 3: מספרים -->
+  <section class="slide">
+    <span class="kicker">03 · המספרים שמאחורי הפעילות</span>
+    <h2>Surf & Fly במספרים</h2>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-number">+500</div><div class="stat-label">תלמידים בכל שנה</div></div>
+      <div class="stat"><div class="stat-number">2</div><div class="stat-label">מוקדי פעילות קבועים בחוף הכרמל<br>נווה ים ועתלית</div></div>
+      <div class="stat"><div class="stat-number">4</div><div class="stat-label">ענפי ספורט ימי<br>קייטסרפינג · Wing Foil · SUP · גלישת גלים</div></div>
+      <div class="stat"><div class="stat-number">3</div><div class="stat-label">יעדי פעילות בינלאומיים<br>יוון · פיליפינים · זנזיבר</div></div>
+      <div class="stat"><div class="stat-number">+250</div><div class="stat-label">משתתפים באירוע הקהילה הראשון בכנרת</div></div>
+    </div>
+    <p class="emph">מאחורי כל מספר עומדים אנשים, קהילה ופעילות שכבר מתקיימת בשטח.</p>
+  </section>
+
+  <!-- שקופית 4: האיש מאחורי החזון -->
+  <section class="slide dense">
+    <span class="kicker">04 · האיש מאחורי החזון</span>
+    <h2>מי עומד מאחורי Surf & Fly?</h2>
+    <p>שמי <strong>זיו משל</strong>.</p>
+    <p>גדלתי והתחנכתי בקדמת צבי שבגולן, והחיבור שלי לאזור מלווה אותי מאז שאני זוכר את עצמי.</p>
+    <p>לאחר השירות כלוחם באגוז בחרתי להפוך את האהבה שלי לים, לרוח ולטבע למקצוע. בשנים האחרונות אני מדריך קייטסרפינג בארץ ובעולם, מוביל מסעות גלישה ומפתח את פעילות Surf & Fly.</p>
+    <p>לאורך השנים זכיתי להדריך מאות תלמידים, להוביל קהילה הולכת וגדלה של גולשים ולהפיק אירועים ופעילויות בארץ ובחו"ל.</p>
+    <p class="emph">החזון שלי הוא לא רק להפעיל מועדון גלישה, אלא להקים בגולן מרכז ספורט ימי שיהפוך את הכנרת ליעד מוביל בישראל, יחזק את התיירות, ייצור הזדמנויות חדשות לתושבי האזור ויבנה קהילה סביב הספורט הימי.</p>
+  </section>
+
+  <!-- שקופית 4ב: מסע הגלישה בפיליפינים — הוכחת מקצועיות -->
+  <section class="slide slide--video-feature">
+    <span class="kicker">מקצועיות בשטח</span>
+    <h2>מסע גלישה בפיליפינים</h2>
+    <div class="media-frame media-frame--feature">
+      <video controls>
+        <source src="מצגת פיליפינים.MP4" type="video/mp4">
+      </video>
+    </div>
+  </section>
+
+  <!-- שקופית 5: למה הכנרת -->
+  <section class="slide dense">
+    <span class="kicker">06 · ההזדמנות</span>
+    <h2>למה דווקא הכנרת?</h2>
+    <p>לכנרת יש שילוב ייחודי של תנאי רוח איכותיים, מים מתוקים, נגישות מכל רחבי הארץ ונוף שאין שני לו.</p>
+    <p>במקביל, תחום הקייטסרפינג וה־Wing Foil נמצא בצמיחה מהירה מאוד בארץ ובעולם. אנחנו רואים זאת באופן ישיר דרך העלייה במספר התלמידים, הביקוש לציוד וכמות הגולשים שמגיעה לכנרת.</p>
+    <p>בימי רוח טובים חוף דיימונד מתמלא בגולשים ולעיתים קשה למצוא מקום חניה.</p>
+    <p class="emph">מבחינתנו זו הוכחה לכך שהביקוש כבר כאן. השלב הבא הוא לייצר תשתיות שיאפשרו לענף להמשיך לצמוח.</p>
+  </section>
+
+  <!-- שקופית 6: למה חוף דיימונד -->
+  <section class="slide dense">
+    <span class="kicker">07 · המיקום</span>
+    <h2>למה דווקא חוף דיימונד?</h2>
+    <p>לאורך השנים בחנו מספר חופים סביב הכנרת. כשאנחנו מדברים על האזור, הכוונה היא לא רק לחוף דיימונד עצמו אלא לכלל האזור – <strong>חופי דיימונד, צאלון וגולן</strong>.</p>
+    <p>חוף דיימונד מציע את אחד מתנאי הרוח הטובים בישראל ללימוד קייטסרפינג ו־Wing Foil.</p>
+    <p>כיוון הרוח, מבנה החוף והמרחב הפתוח מאפשרים סביבת לימוד בטוחה, יעילה ונגישה למתחילים, לצד תנאים איכותיים גם לגולשים מנוסים.</p>
+    <p class="emph">זהו חוף שמאפשר פעילות כמעט יומיומית לאורך עונת הקיץ.</p>
+  </section>
+
+  <!-- שקופית 7: כבר הוכחנו שזה עובד -->
+  <section class="slide dense">
+    <span class="kicker">08 · בשטח כבר היום</span>
+    <h2>כבר הוכחנו שזה עובד</h2>
+    <p>מאז שהתחלנו לפעול בכנרת אנחנו נמצאים בשטח כמעט בכל יום שבו יש תנאי רוח.</p>
+    <p>בכל בוקר אנחנו מגיעים עם כל ציוד ההדרכה, מקימים עמדת פעילות מסודרת ומעניקים שירות לתלמידים, לגולשים ולמבקרים שמגיעים לחוף.</p>
+    <p>העמדה שלנו כוללת ציוד הדרכה, ציוד חילוץ, ציוד השכרה, ערכת עזרה ראשונה ונקודת מידע לכל מי שזקוק לעזרה.</p>
+    <p>אנחנו מסייעים גם לגולשים שאינם תלמידים שלנו מתוך אחריות לקהילת הספורט הימי כולה.</p>
+    <p class="emph">בסיום כל יום פעילות אנחנו מפרקים את הציוד, אוספים אשפה ומשאירים את החוף נקי. האחריות שלנו אינה מסתיימת בסיום השיעור – היא כוללת גם שמירה על הסביבה ועל בטיחות המשתמשים בחוף.</p>
+    <p>אנחנו פתוחים לכל חוף שהמועצה תראה לנכון, אך מבחינתנו החופים הרלוונטיים ביותר לפעילות הם החופים באזור <strong>דיימונד, צאלון וגולן</strong>.</p>
+  </section>
+
+  <!-- שקופית 8: קהילה -->
+  <section class="slide dense">
+    <span class="kicker">09 · קהילה</span>
+    <h2>קהילה לפני הכול</h2>
+    <p>מעבר להדרכות, המטרה שלנו היא לבנות קהילה.</p>
+    <p>השנה קיימנו את אירוע הקהילה הראשון של Surf & Fly בכנרת. האירוע כלל הדגמות גלישה, התנסות בציוד, מוזיקה, מפגש גולשים ופעילויות לכל המשפחה.</p>
+    <p class="emph">למעלה מ־250 משתתפים הגיעו לאירוע והוכיחו שיש ביקוש אמיתי לאירועי ספורט ימי בכנרת.</p>
+    <p>אנחנו מאמינים שזו רק ההתחלה, ושבאמצעות תשתיות מתאימות ניתן לקיים אירועים גדולים נוספים שימשכו קהל מכל רחבי הארץ.</p>
+  </section>
+
+  <!-- שקופית 8ב: סרטון אירוע הקהילה -->
+  <section class="slide slide--video-feature">
+    <span class="kicker">מהשטח</span>
+    <h2>אירוע הקהילה בכנרת</h2>
+    <div class="media-frame media-frame--feature">
+      <video controls>
+        <source src="יואבה קיט - סקיצה 2.mp4" type="video/mp4">
+      </video>
+    </div>
+  </section>
+
+  <!-- שקופית 9: האתגר -->
+  <section class="slide dense">
+    <span class="kicker">10 · האתגר</span>
+    <h2>האתגר</h2>
+    <p class="emph">הביקוש כבר קיים. מה שחסר הוא תשתיות.</p>
+    <p>כיום אין מרכז מסודר שמרכז את פעילות הספורט הימי בכנרת.</p>
+    <div class="two-col">
+      <div class="card">
+        <h3>מה חסר כיום</h3>
+        <ul class="plain">
+          <li>אזורי פעילות ייעודיים</li>
+          <li>מחסני ציוד</li>
+          <li>מקלחות ולוקרים</li>
+          <li>כיתות לימוד</li>
+          <li>פתרונות אחסון</li>
+          <li>נקודת חילוץ</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>הזדמנות למודל משותף</h3>
+        <p>אנחנו מאמינים שאפשר לבנות מודל שבו הספורט הימי, המלונות, הצימרים והעסקים המקומיים עובדים יחד ומחזקים זה את זה, במקום להתחרות על אותו מרחב.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- שקופית 10: החזון -->
+  <section class="slide dense">
+    <span class="kicker">11 · החזון</span>
+    <h2>החזון</h2>
+    <p>המטרה שלנו אינה להקים עוד מועדון גלישה. אנחנו מבקשים להקים מרכז ספורט ימי אזורי שייתן מענה לכל תחומי הפעילות בכנרת ויהווה מוקד משיכה ארצי.</p>
+    <p><strong>המרכז יוכל לכלול:</strong></p>
+    <div class="chip-grid">
+      <div class="chip">בית ספר לקייטסרפינג ו־Wing Foil</div>
+      <div class="chip">פעילות SUP וקיאקים</div>
+      <div class="chip">כיתות לימוד</div>
+      <div class="chip">מחסן ציוד</div>
+      <div class="chip">שירותי חילוץ</div>
+      <div class="chip">לוקרים ומקלחות</div>
+      <div class="chip">חנות ציוד</div>
+      <div class="chip">פעילות לבתי ספר</div>
+      <div class="chip">פעילות לנוער</div>
+      <div class="chip">אירועי קהילה</div>
+      <div class="chip">תחרויות ופסטיבלים</div>
+      <div class="chip">שיתופי פעולה עם מלונות ועסקי תיירות</div>
+    </div>
+  </section>
+
+  <!-- שקופית 11: מה המועצה מרוויחה -->
+  <section class="slide dense">
+    <span class="kicker">12 · התועלת למועצה</span>
+    <h2>מה המועצה מרוויחה?</h2>
+    <p class="emph">מרכז ספורט ימי הוא מנוע צמיחה אזורי.</p>
+    <p>הוא יגדיל את מספר המבקרים בכנרת, יאריך את משך השהייה של תיירים, יחזק את בתי המלון, הצימרים, המסעדות והעסקים המקומיים וייצר מקומות עבודה חדשים.</p>
+    <p>במקביל, הוא יספק פעילות חינוכית לנוער, יקדם אורח חיים ספורטיבי, יארח אירועי ספורט וקהילה ויחזק את מעמדו של הגולן כיעד המוביל בישראל לספורט ימי.</p>
+  </section>
+
+  <!-- שקופית 12: למה דווקא Surf & Fly -->
+  <section class="slide dense">
+    <span class="kicker">13 · למה Surf & Fly</span>
+    <h2>למה דווקא Surf & Fly?</h2>
+    <p>אנחנו לא מגיעים עם רעיון בלבד. אנחנו מגיעים עם פעילות שמתקיימת כבר היום.</p>
+    <p>אנחנו מפעילים מוקד קבוע בחוף הכרמל, נמצאים בכנרת כמעט בכל יום עם תנאי רוח, מדריכים מאות תלמידים בכל שנה, מפיקים אירועים, מובילים מסעות גלישה בארץ ובעולם ופועלים מתוך היכרות עמוקה עם השטח.</p>
+    <p>הוכחנו שאנחנו יודעים לבנות קהילה, להפעיל מערך מקצועי ולייצר פעילות שמחברת בין ספורט, תיירות ואנשים.</p>
+    <p class="emph">אנחנו מחפשים שותפות אמיתית עם המועצה, כדי לבנות יחד את מרכז הספורט הימי של ישראל.</p>
+  </section>
+
+  <!-- שקופית 13: תודה -->
+  <section class="slide slide--closing">
+    <h1>תודה</h1>
+    <p class="subtitle" style="font-size:1.3rem; max-width:820px;">הכנרת כבר הוכיחה את הפוטנציאל שלה.</p>
+    <h3>עכשיו הגיע הזמן לממש אותו.</h3>
+    <p style="max-width:760px; margin-top:1em;"><strong>Surf & Fly תשמח להוביל ולנהל את הפרויקט של הקמת מרכז הספורט הימי בכנרת, ביחד עם המועצה האזורית גולן.</strong></p>
+    <div class="contact-row">
+      <a class="contact-item" href="https://www.instagram.com/_surfandfly?igsh=OTh2dzhyZDBoamR4&utm_source=qr" target="_blank" rel="noopener noreferrer"><span class="icon">📷</span>@_surfandfly</a>
+      <a class="contact-item" href="tel:0552682062"><span class="icon">📞</span>052-268-2062</a>
+      <a class="contact-item" href="mailto:surfandflyzb@gmail.com"><span class="icon">✉️</span>surfandflyzb@gmail.com</a>
+    </div>
+  </section>
+
+</div>
+
+<div class="click-zone prev" id="zone-prev" title="קודם"></div>
+<div class="click-zone next" id="zone-next" title="הבא"></div>
+
+<div id="nav">
+  <button id="btn-fullscreen" title="מסך מלא (F)">⛶</button>
+  <button id="btn-next" title="הבא (חץ שמאלה)">‹</button>
+  <span id="slide-counter">1 / 1</span>
+  <button id="btn-prev" title="קודם (חץ ימינה)">›</button>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var current = 0;
+
+  var counter = document.getElementById('slide-counter');
+  var bar = document.getElementById('progress-bar');
+
+  function render(){
+    slides.forEach(function(s, i){ s.classList.toggle('active', i === current); });
+    counter.textContent = (current + 1) + ' / ' + slides.length;
+    bar.style.width = ((current + 1) / slides.length * 100) + '%';
+  }
+
+  function goNext(){ if (current < slides.length - 1){ current++; render(); } }
+  function goPrev(){ if (current > 0){ current--; render(); } }
+
+  document.getElementById('btn-next').addEventListener('click', goNext);
+  document.getElementById('btn-prev').addEventListener('click', goPrev);
+  document.getElementById('zone-next').addEventListener('click', goNext);
+  document.getElementById('zone-prev').addEventListener('click', goPrev);
+
+  document.getElementById('btn-fullscreen').addEventListener('click', function(){
+    if (!document.fullscreenElement){ document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen(); }
+  });
+
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' '){ goNext(); }
+    else if (e.key === 'ArrowRight' || e.key === 'PageUp'){ goPrev(); }
+    else if (e.key === 'Home'){ current = 0; render(); }
+    else if (e.key === 'End'){ current = slides.length - 1; render(); }
+    else if (e.key === 'f' || e.key === 'F'){ document.getElementById('btn-fullscreen').click(); }
+    else if (e.key === 'Escape' && document.fullscreenElement){ document.exitFullscreen(); }
+  });
+
+  var touchStartX = null;
+  window.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; });
+  window.addEventListener('touchend', function(e){
+    if (touchStartX === null) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50){ dx < 0 ? goNext() : goPrev(); }
+    touchStartX = null;
+  });
+
+  render();
+
+  document.querySelectorAll('.media-frame--feature').forEach(function(frame){
+    var video = frame.querySelector('video');
+    if (!video) return;
+    video.addEventListener('loadedmetadata', function(){
+      if (video.videoWidth && video.videoHeight){
+        frame.style.aspectRatio = video.videoWidth + ' / ' + video.videoHeight;
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
